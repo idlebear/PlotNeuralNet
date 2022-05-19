@@ -1,0 +1,52 @@
+\ProvidesPackage{FC}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%This Block can draw small Ball
+%Elementwise or reduction operations can be drawn with this
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tikzset{
+    FC/.pic={
+        \tikzset{/layer/.cd,#1}
+
+        \pgfmathsetmacro{\r}{\radius*\scale}
+        \tikzstyle{cell}=[thick,draw=blue,fill=blue!20,circle,minimum size=\r]
+
+        \foreach \N [count=\lay,
+                     remember={\N as \Nprev (initially 0);}] in {n_cells} { % loop over layers
+            \foreach \i [evaluate={\y=\N/2-\i; \x=\lay; \prev=int(\lay-1);}] in {1,...,\N}{ % loop over nodes
+                \node[cell] (N\lay-\i) at (\x,\y) {};
+                \ifnum\Nprev>0 % connect to previous layer
+                    \foreach \j in {1,...,\Nprev} { % loop over nodes in previous layer
+                        \draw[thick] (N\prev-\j) -- (N\lay-\i);
+                    }
+                \fi
+
+                \coordinate (\name-anchor) at ( 0 , 0  , 0) ;
+                \coordinate (\name-east)   at ( \r, 0  , 0) ;
+                \coordinate (\name-west)   at (-\r, 0  , 0) ;
+                \coordinate (\name-north)  at ( 0 , \r , 0) ;
+                \coordinate (\name-south)  at ( 0 , -\r, 0) ;
+
+            }
+        }
+    }
+
+    /layer/.search also={/tikz},
+    /layer/.cd,
+    radius/.store       in=\radius,
+    scale/.store        in=\scale,
+    caption/.store      in=\caption,
+    name/.store         in=\name,
+    fill/.store         in=\fill,
+    logo/.store         in=\logo,
+    n_cells/.store      in=\n_cells,
+    opacity/.store      in=\opacity,
+    logo=$\Sigma$,
+    fill=green,
+    opacity=0.10,
+    scale=0.2,
+    radius=0.5,
+    caption=,
+    name=,
+    n_cells={{1,}},
+}
