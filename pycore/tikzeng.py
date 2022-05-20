@@ -42,14 +42,24 @@ def to_begin():
 
 def to_input(pathfile, to='(-3,0,0)', width=8, height=8, name="temp"):
     return r"""
-\node[canvas is zy plane at x=0] (""" + name + """) at """ + to + """
+\node[canvas is zy plane at x=0] (""" + name + """-east) at """ + to + """
      {\includegraphics[width=""" + str(width)+"cm"+""",height=""" + str(height)+"cm"+"""]{""" + pathfile + """}};
 """
+
+
+def parse_to(to):
+    if type(to) is tuple:
+        return str(to)
+    return to if to[0] == '(' and to[-1] == ')' else '(' + to + ')'
 
 
 def to_Box(name, offset="(0,0,0)", to="(0,0,0)", s_filer=None, n_filer=None, width=2, height=2, depth=2, caption=""):
     s_filer = str(s_filer) if s_filer is not None else ""
     n_filer = str(n_filer) if n_filer is not None else ""
+    to = parse_to(to)
+
+    if to[0] != '(':
+        to = '(' + to + ')'
 
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
@@ -72,17 +82,21 @@ def to_Conv(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0,0)", wi
     s_filer = str(s_filer) if s_filer is not None else ""
     n_filer = str(n_filer) if n_filer is not None else ""
 
+    if type(width) == int:
+        width = (width,)
+    to = parse_to(to)
+
     width_str = []
     for w in width:
         width_str.append(str(w))
-    width_str = ",".join(width_str)
+    width_str = ", ".join(width_str)
 
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
     {Box={
         name =""" + name + """,
         caption = """ + caption + r""",
-        xlabel = {""" + str(n_filer) + """, },
+        xlabel = {""" + str(n_filer) + """ },
         zlabel = """ + str(s_filer) + """,
         fill=\ConvColor,
         height = """ + str(height) + """,
@@ -99,6 +113,8 @@ def to_Conv(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0,0)", wi
 def to_ConvConvRelu(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0,0)", width=(2, 2), height=40, depth=40, caption=" "):
     s_filer = str(s_filer) if s_filer is not None else ""
     n_filer = str(n_filer) if n_filer is not None else ""
+
+    to = parse_to(to)
 
     width_str = []
     for w in width:
@@ -123,6 +139,8 @@ def to_ConvConvRelu(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0
 
 # Pool
 def to_Pool(name, offset="(0,0,0)", to="(0,0,0)", width=1, height=32, depth=32, opacity=0.5, caption=" "):
+    to = parse_to(to)
+
     return r"""
 \pic[shift={ """ + offset + """ }] at """ + to + """
     {Box={
@@ -141,6 +159,8 @@ def to_Pool(name, offset="(0,0,0)", to="(0,0,0)", width=1, height=32, depth=32, 
 
 
 def to_UnPool(name, offset="(0,0,0)", to="(0,0,0)", width=1, height=32, depth=32, opacity=0.5, caption=" "):
+    to = parse_to(to)
+
     return r"""
 \pic[shift={ """ + offset + """ }] at """ + to + """
     {Box={
@@ -159,6 +179,8 @@ def to_UnPool(name, offset="(0,0,0)", to="(0,0,0)", width=1, height=32, depth=32
 def to_ConvRes(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0,0)", width=6, height=40, depth=40, opacity=0.2, caption=" "):
     s_filer = str(s_filer) if s_filer is not None else ""
     n_filer = str(n_filer) if n_filer is not None else ""
+
+    to = parse_to(to)
 
     return r"""
 \pic[shift={ """ + offset + """ }] at """ + to + """
@@ -182,6 +204,8 @@ def to_ConvRes(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0,0)",
 def to_ConvSoftMax(name, s_filer=None, offset="(0,0,0)", to="(0,0,0)", width=1, height=40, depth=40, caption=" "):
     s_filer = str(s_filer) if s_filer is not None else ""
 
+    to = parse_to(to)
+
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
     {Box={
@@ -201,6 +225,7 @@ def to_ConvSoftMax(name, s_filer=None, offset="(0,0,0)", to="(0,0,0)", width=1, 
 
 def to_SoftMax(name, s_filer=None, offset="(0,0,0)", to="(0,0,0)", width=1.5, height=3, depth=25, opacity=0.8, caption=" "):
     s_filer = str(s_filer) if s_filer is not None else ""
+    to = parse_to(to)
 
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
@@ -220,6 +245,7 @@ def to_SoftMax(name, s_filer=None, offset="(0,0,0)", to="(0,0,0)", width=1.5, he
 
 
 def to_Sum(name, offset="(0,0,0)", to="(0,0,0)", radius=2.5, opacity=0.6):
+    to = parse_to(to)
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
     {Ball={
@@ -234,6 +260,7 @@ def to_Sum(name, offset="(0,0,0)", to="(0,0,0)", radius=2.5, opacity=0.6):
 
 
 def to_FC(name, offset="(0,0,0)", to="(0,0,0)", n_layers=1, radius=4):
+    to = parse_to(to)
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
     {FC={

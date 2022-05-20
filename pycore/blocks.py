@@ -67,6 +67,59 @@ def block_2ConvPool(name, bottom, top, s_filer=None, n_filer=None, offset="(1,0,
     ]
 
 
+def block_ConvPoolConv(name, next, prev, dim=(10, 10), offset="(0,0,0)", in_channels=1, out_channels=1, add_pool=False, conv_layers=2):
+    dim_x, dim_y = dim
+
+    scale_factor = 4
+    channels = [in_channels//scale_factor]
+    channels.extend([out_channels//scale_factor for _ in range(conv_layers - 1)])
+
+    layers = []
+
+    for layer_num in range(conv_layers):
+
+        if not layer_num:
+            layer_name = "{}_in".format(name)
+            to = "{}-east".format(prev)
+        else:
+            if layer_num == conv_layers - 1:
+                layer_name = "{}_out".format(name)
+            else:
+                layer_name = "{}_{:03d}".format(name, layer_num)
+            to = "{}-east".format(last_name)
+            offset = "(0,0,0)"
+
+        layers.append(to_Conv(
+            name=layer_name,
+            s_filer="{}x{}".format(dim_x, dim_y),
+            n_filer=channels[layer_num],
+            offset=offset,
+            to=to,
+            width=channels[layer_num],
+            height=dim_y,
+            depth=dim_x,
+        ))
+
+        if not layer_num and add_pool:
+            dim_x = max(1, dim_x // 2)
+            dim_y = max(1, dim_y // 2)
+
+            pool_name = "{}_pool".format(name)
+            layers.append(to_Pool(
+                pool_name,
+                offset="(0,0,0)",
+                to="{}-east".format(layer_name),
+                width=2,
+                height=dim_y,
+                depth=dim_x,
+            ))
+            last_name = pool_name
+        else:
+            last_name = layer_name
+
+    return layers
+
+
 def block_Unconv(name, bottom, top, s_filer=None, n_filer=None, offset="(1,0,0)", size=(32, 32, 3.5), opacity=0.5):
 
     s_filer = str(s_filer) if s_filer is not None else ""
