@@ -67,7 +67,7 @@ def block_2ConvPool(name, bottom, top, s_filer=None, n_filer=None, offset="(1,0,
     ]
 
 
-def block_ConvPoolConv(name, next, prev, dim=(10, 10), offset="(0,0,0)", in_channels=1, out_channels=1, add_pool=False, conv_layers=2):
+def block_ConvPoolConv(name, next, prev, dim=(10, 10), offset="(0,0,0)", in_channels=1, out_channels=1, add_pool=False, conv_layers=2, caption=''):
     dim_x, dim_y = dim
 
     scale_factor = 4
@@ -89,10 +89,16 @@ def block_ConvPoolConv(name, next, prev, dim=(10, 10), offset="(0,0,0)", in_chan
             to = "{}-east".format(last_name)
             offset = "(0,0,0)"
 
+        if layer_num == conv_layers // 2:
+            box_caption = caption
+        else:
+            box_caption = ''
+
         layers.append(to_Conv(
             name=layer_name,
+            caption=box_caption,
             s_filer="{}x{}".format(dim_x, dim_y),
-            n_filer=channels[layer_num],
+            n_filer='',
             offset=offset,
             to=to,
             width=channels[layer_num],

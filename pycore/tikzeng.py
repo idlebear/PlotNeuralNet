@@ -58,9 +58,6 @@ def to_Box(name, offset="(0,0,0)", to="(0,0,0)", s_filer=None, n_filer=None, wid
     n_filer = str(n_filer) if n_filer is not None else ""
     to = parse_to(to)
 
-    if to[0] != '(':
-        to = '(' + to + ')'
-
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
     {Box={
@@ -82,14 +79,15 @@ def to_Conv(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0,0)", wi
     s_filer = str(s_filer) if s_filer is not None else ""
     n_filer = str(n_filer) if n_filer is not None else ""
 
-    if type(width) == int:
-        width = (width,)
     to = parse_to(to)
 
-    width_str = []
-    for w in width:
-        width_str.append(str(w))
-    width_str = ", ".join(width_str)
+    if type(width) is tuple:
+        width_str = []
+        for w in width:
+            width_str.append(str(w))
+        width_str = ", ".join(width_str)
+    else:
+        width_str = str(width)
 
     return r"""
 \pic[shift={""" + offset + """}] at """ + to + """
@@ -116,10 +114,13 @@ def to_ConvConvRelu(name, s_filer=None, n_filer=None, offset="(0,0,0)", to="(0,0
 
     to = parse_to(to)
 
-    width_str = []
-    for w in width:
-        width_str.append(str(w))
-    width_str = ",".join(width_str)
+    if type(width) is tuple:
+        width_str = []
+        for w in width:
+            width_str.append(str(w))
+        width_str = ", ".join(width_str)
+    else:
+        width_str = str(width)
 
     return r"""
 \pic[shift={ """ + offset + """ }] at """ + to + """
